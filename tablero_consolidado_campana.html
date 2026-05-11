@@ -1,0 +1,425 @@
+
+<h2 class="sr-only">Tablero consolidado semanal de campaña Yo Estoy Con Vos — carga archivos Excel de cada eje para ver el avance unificado</h2>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.topbar{background:#1A1A2E;border-radius:var(--border-radius-lg);padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.topbar-left h1{font-size:14px;font-weight:500;color:#fff;letter-spacing:.03em}
+.topbar-left p{font-size:11px;color:#9CA3AF;margin-top:2px}
+.semana-pill{background:#2d2d4e;color:#A5A8D8;font-size:11px;padding:5px 12px;border-radius:20px;border:0.5px solid #3d3d6e;white-space:nowrap}
+.metrics-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1rem}
+.metric{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.875rem 1rem}
+.metric-label{font-size:11px;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.metric-val{font-size:22px;font-weight:500;color:var(--color-text-primary);line-height:1}
+.metric-sub{font-size:11px;color:var(--color-text-secondary);margin-top:4px}
+.section-title{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.upload-zone{border:1.5px dashed var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:1.5rem;text-align:center;cursor:pointer;transition:background .15s;margin-bottom:1rem}
+.upload-zone:hover{background:var(--color-background-secondary)}
+.upload-zone i{font-size:28px;color:var(--color-text-secondary);display:block;margin-bottom:8px}
+.upload-zone p{font-size:13px;color:var(--color-text-secondary)}
+.upload-zone span{font-size:11px;color:var(--color-text-tertiary)}
+.file-input{display:none}
+.ejes-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:1rem}
+.eje-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.75rem 1rem;border-left:3px solid transparent}
+.eje-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.eje-name{font-size:11px;font-weight:500;color:var(--color-text-primary)}
+.eje-pct{font-size:13px;font-weight:500}
+.eje-bar-bg{height:5px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden}
+.eje-bar-fill{height:100%;border-radius:3px;transition:width .4s ease}
+.eje-counts{display:flex;gap:8px;margin-top:5px}
+.eje-count{font-size:10px;color:var(--color-text-secondary)}
+.eje-count span{font-weight:500;color:var(--color-text-primary)}
+.chart-wrap{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem;margin-bottom:1rem}
+.chart-title{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.75rem}
+.bar-chart{display:flex;flex-direction:column;gap:8px}
+.bar-row{display:flex;align-items:center;gap:8px}
+.bar-label{font-size:10px;color:var(--color-text-secondary);width:120px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-track{flex:1;height:18px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden;position:relative}
+.bar-fill{height:100%;border-radius:3px;transition:width .5s ease;display:flex;align-items:center;justify-content:flex-end;padding-right:6px}
+.bar-fill span{font-size:9px;font-weight:500;color:#fff}
+.status-legend{display:flex;gap:12px;margin-bottom:1rem;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--color-text-secondary)}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.actividades-table{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed}
+.actividades-table th{background:var(--color-background-secondary);font-weight:500;color:var(--color-text-secondary);padding:6px 8px;text-align:left;border-bottom:0.5px solid var(--color-border-tertiary)}
+.actividades-table td{padding:6px 8px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.actividades-table tr:last-child td{border-bottom:none}
+.status-tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:500}
+.tag-pendiente{background:#FAEEDA;color:#854F0B}
+.tag-proceso{background:#B5D4F4;color:#185FA5}
+.tag-completado{background:#C0DD97;color:#27500A}
+.tag-cancelado{background:#F7C1C1;color:#791F1F}
+.empty-state{text-align:center;padding:2rem;color:var(--color-text-secondary);font-size:13px}
+.empty-state i{font-size:32px;display:block;margin-bottom:.5rem;color:var(--color-text-tertiary)}
+.add-manual-btn{width:100%;margin-top:.5rem;font-size:12px;padding:8px}
+.semana-nav{display:flex;align-items:center;gap:8px;margin-bottom:1rem}
+.semana-nav button{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:5px 10px;cursor:pointer;font-size:12px;color:var(--color-text-primary)}
+.semana-nav span{font-size:13px;font-weight:500;color:var(--color-text-primary);flex:1;text-align:center}
+</style>
+
+<div style="padding:1rem 0">
+
+<div class="topbar">
+  <div class="topbar-left">
+    <h1>Tablero de campaña · Yo Estoy Con Vos</h1>
+    <p id="fecha-actual">Cargando fecha...</p>
+  </div>
+  <div class="semana-pill" id="semana-label">Semana —</div>
+</div>
+
+<div class="metrics-row">
+  <div class="metric">
+    <div class="metric-label">Ejes cargados</div>
+    <div class="metric-val" id="m-ejes">0 / 10</div>
+    <div class="metric-sub">archivos subidos</div>
+  </div>
+  <div class="metric">
+    <div class="metric-label">Total actividades</div>
+    <div class="metric-val" id="m-total">0</div>
+    <div class="metric-sub">en todos los ejes</div>
+  </div>
+  <div class="metric">
+    <div class="metric-label">Completadas</div>
+    <div class="metric-val" id="m-comp">0</div>
+    <div class="metric-sub" id="m-comp-pct">— % del total</div>
+  </div>
+  <div class="metric">
+    <div class="metric-label">Avance general</div>
+    <div class="metric-val" id="m-avance">0%</div>
+    <div class="metric-sub" id="m-alerta">Sin datos aún</div>
+  </div>
+</div>
+
+<div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+  <i class="ti ti-upload" aria-hidden="true"></i>
+  <p>Subir archivos Excel de los coordinadores</p>
+  <span>Podés subir varios a la vez · .xlsx · El sistema detecta el eje automáticamente</span>
+</div>
+<input type="file" id="file-input" class="file-input" multiple accept=".xlsx,.xls" />
+
+<div class="status-legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#3B6D11"></div>Completado</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#185FA5"></div>En proceso</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#854F0B"></div>Pendiente</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#A32D2D"></div>Cancelado</div>
+</div>
+
+<p class="section-title">Avance por eje</p>
+<div class="ejes-grid" id="ejes-grid">
+  <div class="empty-state" style="grid-column:1/-1">
+    <i class="ti ti-chart-bar" aria-hidden="true"></i>
+    Subí los archivos de los coordinadores para ver el avance por eje
+  </div>
+</div>
+
+<div class="chart-wrap">
+  <div class="chart-title">Actividades por eje — estado actual</div>
+  <div class="bar-chart" id="bar-chart">
+    <div class="empty-state"><i class="ti ti-upload" aria-hidden="true"></i>Sin datos cargados</div>
+  </div>
+</div>
+
+<p class="section-title">Actividades de esta semana</p>
+<div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:1rem">
+  <table class="actividades-table">
+    <thead>
+      <tr>
+        <th style="width:22%">Eje</th>
+        <th style="width:30%">Actividad</th>
+        <th style="width:14%">Vence</th>
+        <th style="width:18%">Responsable</th>
+        <th style="width:16%">Estado</th>
+      </tr>
+    </thead>
+    <tbody id="act-tbody">
+      <tr><td colspan="5" class="empty-state" style="padding:1.5rem"><i class="ti ti-calendar" aria-hidden="true"></i>Sin actividades esta semana</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<button class="add-manual-btn" onclick="sendPrompt('Quiero ingresar datos de un eje manualmente sin subir Excel. ¿Cómo lo hago?')">
+  <i class="ti ti-edit" aria-hidden="true"></i> Ingresar datos manualmente ↗
+</button>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+const EJES_CONFIG = [
+  {key:'fe',         label:'Eje de la Fe',              color:'#1A1A5E', light:'#EEEEFA'},
+  {key:'emprend',    label:'Emprendimientos',            color:'#0F6E56', light:'#E1F5EE'},
+  {key:'bienestar',  label:'Bienestar',                 color:'#185FA5', light:'#E6F1FB'},
+  {key:'jovenes',    label:'Jóvenes',                   color:'#993356', light:'#FBEAF0'},
+  {key:'goprende',   label:'Goprende',                  color:'#3B6D11', light:'#EAF3DE'},
+  {key:'formacion',  label:'Formación y Liderazgo',     color:'#993C1D', light:'#FAECE7'},
+  {key:'estrategia', label:'Estrategia Política',       color:'#1A1A2E', light:'#EEEEEE'},
+  {key:'comun',      label:'Comunicaciones',            color:'#854F0B', light:'#FAEEDA'},
+  {key:'gestiones',  label:'Gestiones',                 color:'#5F5E5A', light:'#F1EFE8'},
+  {key:'fundacion',  label:'Fundación Yo Estoy Con Vos',color:'#A32D2D', light:'#FCEBEB'},
+];
+
+const EJE_KEYWORDS = {
+  fe:['fe','faith','religion','espiritual'],
+  emprend:['emprend','empresa','negocio','startup'],
+  bienestar:['bienestar','salud','welfare'],
+  jovenes:['joven','juventud','young'],
+  goprende:['goprende','gobierno','aprende'],
+  formacion:['formacion','formación','liderazgo','capacit'],
+  estrategia:['estrategia','politica','política'],
+  comun:['comunicacion','comunicación','prensa','redes'],
+  gestiones:['gestion','gestión','tramite'],
+  fundacion:['fundacion','fundación','yoestoy'],
+};
+
+let state = {};
+EJES_CONFIG.forEach(e => {
+  state[e.key] = {label:e.label, color:e.color, light:e.light, loaded:false,
+    total:0, completado:0, proceso:0, pendiente:0, cancelado:0, actividades:[]};
+});
+
+function getWeekLabel(d) {
+  const jan1 = new Date(d.getFullYear(), 0, 1);
+  const wk = Math.ceil(((d - jan1) / 86400000 + jan1.getDay() + 1) / 7);
+  return `Semana ${wk} · ${d.getFullYear()}`;
+}
+
+function getWeekRange(d) {
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  const mon = new Date(d.setDate(diff));
+  const fri = new Date(mon); fri.setDate(mon.getDate() + 4);
+  const fmt = dt => dt.toLocaleDateString('es-CO', {day:'2-digit',month:'short'});
+  return `${fmt(mon)} — ${fmt(fri)}`;
+}
+
+function isThisWeek(dateStr) {
+  if (!dateStr) return false;
+  const d = new Date(dateStr);
+  if (isNaN(d)) return false;
+  const now = new Date();
+  const startOfWeek = new Date(now);
+  startOfWeek.setDate(now.getDate() - now.getDay() + 1);
+  startOfWeek.setHours(0,0,0,0);
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(startOfWeek.getDate() + 6);
+  return d >= startOfWeek && d <= endOfWeek;
+}
+
+function detectEje(filename, sheetNames) {
+  const str = (filename + ' ' + sheetNames.join(' ')).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  for (const [key, kws] of Object.entries(EJE_KEYWORDS)) {
+    if (kws.some(k => str.includes(k))) return key;
+  }
+  return null;
+}
+
+function parseStatus(val) {
+  if (!val) return 'pendiente';
+  const v = String(val).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  if (v.includes('complet') || v.includes('listo') || v.includes('done')) return 'completado';
+  if (v.includes('proceso') || v.includes('ejecuci') || v.includes('progress')) return 'proceso';
+  if (v.includes('cancel')) return 'cancelado';
+  return 'pendiente';
+}
+
+function excelDateToStr(val) {
+  if (!val) return '';
+  if (typeof val === 'number') {
+    const d = new Date(Math.round((val - 25569) * 86400 * 1000));
+    return d.toISOString().split('T')[0];
+  }
+  return String(val);
+}
+
+function processWorkbook(wb, filename) {
+  const sheetNames = wb.SheetNames;
+  const ejKey = detectEje(filename, sheetNames);
+  
+  let targetSheet = null;
+  let ejKeyFinal = ejKey;
+  
+  if (!ejKey) {
+    targetSheet = wb.Sheets[sheetNames[0]];
+    ejKeyFinal = EJES_CONFIG.find(e => !state[e.key].loaded)?.key || sheetNames[0].substring(0,6).toLowerCase();
+  } else {
+    const sheetName = sheetNames.find(s => {
+      const sl = s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+      return EJE_KEYWORDS[ejKey]?.some(k => sl.includes(k));
+    }) || sheetNames[0];
+    targetSheet = wb.Sheets[sheetName];
+  }
+
+  if (!targetSheet || !ejKeyFinal || !state[ejKeyFinal]) return false;
+
+  const rows = XLSX.utils.sheet_to_json(targetSheet, {header:1, defval:''});
+  
+  const acts = [];
+  let headerRow = -1;
+  
+  for (let i = 0; i < Math.min(rows.length, 12); i++) {
+    const row = rows[i].map(c => String(c).toLowerCase());
+    if (row.some(c => c.includes('actividad') || c.includes('accion') || c.includes('acción'))) {
+      headerRow = i; break;
+    }
+  }
+
+  const dataStart = headerRow >= 0 ? headerRow + 1 : 7;
+  
+  for (let i = dataStart; i < rows.length; i++) {
+    const row = rows[i];
+    if (!row[0] && !row[1]) continue;
+    const nombre = String(row[0] || row[1] || '').trim();
+    if (!nombre || nombre.length < 2) continue;
+    const fechaRaw = row[3] || row[4] || '';
+    acts.push({
+      nombre,
+      objetivo: String(row[1] || row[2] || '').trim(),
+      fechaFin: excelDateToStr(fechaRaw),
+      responsable: String(row[4] || row[5] || '').trim(),
+      estado: parseStatus(row[6] || row[7] || ''),
+    });
+  }
+
+  if (acts.length === 0) return false;
+
+  const s = state[ejKeyFinal];
+  s.loaded = true;
+  s.actividades = acts;
+  s.total = acts.length;
+  s.completado = acts.filter(a => a.estado === 'completado').length;
+  s.proceso = acts.filter(a => a.estado === 'proceso').length;
+  s.pendiente = acts.filter(a => a.estado === 'pendiente').length;
+  s.cancelado = acts.filter(a => a.estado === 'cancelado').length;
+  return true;
+}
+
+function render() {
+  const loaded = EJES_CONFIG.filter(e => state[e.key].loaded);
+  const total = loaded.reduce((s,e) => s + state[e.key].total, 0);
+  const comp  = loaded.reduce((s,e) => s + state[e.key].completado, 0);
+  const proc  = loaded.reduce((s,e) => s + state[e.key].proceso, 0);
+  const pend  = loaded.reduce((s,e) => s + state[e.key].pendiente, 0);
+  const pct   = total > 0 ? Math.round((comp / total) * 100) : 0;
+
+  document.getElementById('m-ejes').textContent = `${loaded.length} / 10`;
+  document.getElementById('m-total').textContent = total;
+  document.getElementById('m-comp').textContent = comp;
+  document.getElementById('m-comp-pct').textContent = total > 0 ? `${Math.round(comp/total*100)}% del total` : '— % del total';
+  document.getElementById('m-avance').textContent = pct + '%';
+  document.getElementById('m-alerta').textContent = pct >= 70 ? 'En buen ritmo' : pct >= 40 ? 'Ritmo moderado' : loaded.length > 0 ? 'Requiere atención' : 'Sin datos aún';
+
+  const grid = document.getElementById('ejes-grid');
+  if (loaded.length === 0) {
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><i class="ti ti-chart-bar" aria-hidden="true"></i>Subí los archivos de los coordinadores para ver el avance por eje</div>';
+  } else {
+    grid.innerHTML = loaded.map(e => {
+      const s = state[e.key];
+      const p = s.total > 0 ? Math.round(s.completado / s.total * 100) : 0;
+      return `<div class="eje-card" style="border-left-color:${e.color}">
+        <div class="eje-card-top">
+          <div class="eje-name">${s.label}</div>
+          <div class="eje-pct" style="color:${e.color}">${p}%</div>
+        </div>
+        <div class="eje-bar-bg"><div class="eje-bar-fill" style="width:${p}%;background:${e.color}"></div></div>
+        <div class="eje-counts">
+          <div class="eje-count"><span>${s.completado}</span> completadas</div>
+          <div class="eje-count"><span>${s.proceso}</span> en proceso</div>
+          <div class="eje-count"><span>${s.pendiente}</span> pendientes</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  const barChart = document.getElementById('bar-chart');
+  if (loaded.length === 0) {
+    barChart.innerHTML = '<div class="empty-state"><i class="ti ti-upload" aria-hidden="true"></i>Sin datos cargados</div>';
+  } else {
+    const maxTotal = Math.max(...loaded.map(e => state[e.key].total), 1);
+    barChart.innerHTML = loaded.map(e => {
+      const s = state[e.key];
+      const w = Math.round((s.total / maxTotal) * 100);
+      const wc = Math.round((s.completado / maxTotal) * 100);
+      const wp = Math.round((s.proceso / maxTotal) * 100);
+      return `<div class="bar-row">
+        <div class="bar-label" title="${s.label}">${s.label}</div>
+        <div class="bar-track">
+          <div style="display:flex;height:100%">
+            <div style="width:${wc}%;background:#3B6D11;transition:width .4s"></div>
+            <div style="width:${wp}%;background:#185FA5;transition:width .4s"></div>
+            <div style="width:${Math.min(w - wc - wp, 100)}%;background:#D3D1C7;transition:width .4s"></div>
+          </div>
+        </div>
+        <div style="font-size:10px;color:var(--color-text-secondary);min-width:28px;text-align:right">${s.total}</div>
+      </div>`;
+    }).join('');
+  }
+
+  const allActs = loaded.flatMap(e => 
+    state[e.key].actividades.map(a => ({...a, ejLabel: state[e.key].label, ejColor: e.color}))
+  );
+  const semActs = allActs.filter(a => isThisWeek(a.fechaFin));
+  const tbody = document.getElementById('act-tbody');
+  
+  if (semActs.length === 0) {
+    const msg = loaded.length > 0 ? 'No hay actividades con fecha de cierre esta semana' : 'Sin actividades esta semana';
+    tbody.innerHTML = `<tr><td colspan="5" class="empty-state" style="padding:1.5rem"><i class="ti ti-calendar" aria-hidden="true"></i>${msg}</td></tr>`;
+  } else {
+    tbody.innerHTML = semActs.slice(0, 15).map(a => {
+      const tagClass = `tag-${a.estado}`;
+      const fechaStr = a.fechaFin ? new Date(a.fechaFin).toLocaleDateString('es-CO', {day:'2-digit',month:'short'}) : '—';
+      return `<tr>
+        <td><span style="color:${a.ejColor};font-size:10px;font-weight:500">${a.ejLabel}</span></td>
+        <td title="${a.nombre}">${a.nombre}</td>
+        <td>${fechaStr}</td>
+        <td>${a.responsable || '—'}</td>
+        <td><span class="status-tag ${tagClass}">${a.estado}</span></td>
+      </tr>`;
+    }).join('');
+  }
+}
+
+document.getElementById('file-input').addEventListener('change', function(e) {
+  const files = Array.from(e.target.files);
+  let processed = 0;
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      try {
+        const wb = XLSX.read(ev.target.result, {type:'array'});
+        const ok = processWorkbook(wb, file.name);
+        processed++;
+        if (processed === files.length) render();
+      } catch(err) { processed++; if (processed === files.length) render(); }
+    };
+    reader.readAsArrayBuffer(file);
+  });
+});
+
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.style.background = 'var(--color-background-secondary)'; });
+dz.addEventListener('dragleave', () => { dz.style.background = ''; });
+dz.addEventListener('drop', e => {
+  e.preventDefault(); dz.style.background = '';
+  const files = Array.from(e.dataTransfer.files).filter(f => f.name.match(/\.xlsx?$/i));
+  if (!files.length) return;
+  let processed = 0;
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const wb = XLSX.read(ev.target.result, {type:'array'});
+        processWorkbook(wb, file.name);
+        processed++;
+        if (processed === files.length) render();
+      } catch(err) { processed++; if (processed === files.length) render(); }
+    };
+    reader.readAsArrayBuffer(file);
+  });
+});
+
+const now = new Date();
+document.getElementById('fecha-actual').textContent = now.toLocaleDateString('es-CO', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+document.getElementById('semana-label').textContent = getWeekLabel(now);
+
+render();
+</script>
