@@ -1,0 +1,551 @@
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    font-family: var(--font-sans);
+  }
+  .wrap {
+    padding: 1.5rem 0;
+  }
+  .header-strip {
+    background: #1a1a2e;
+    border-radius: var(--border-radius-lg);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .header-strip h1 {
+    font-size: 15px;
+    font-weight: 500;
+    color: #fff;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .header-strip .logo-pill {
+    background: #d4537e;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .meta-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+  .meta-card {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-md);
+    padding: 10px 14px;
+  }
+  .meta-card label {
+    display: block;
+    font-size: 11px;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+  .meta-card input,
+  .meta-card select {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-primary);
+    background: transparent;
+    padding: 0;
+  }
+  .eje-selector {
+    margin-bottom: 1.5rem;
+  }
+  .eje-selector label {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    display: block;
+    margin-bottom: 8px;
+  }
+  .ejes-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .eje-btn {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1.5px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--color-background-secondary);
+    color: var(--color-text-secondary);
+    border-color: var(--color-border-tertiary);
+  }
+  .eje-btn.active {
+    color: #fff;
+  }
+  .eje-btn[data-eje="fe"].active {
+    background: #533ab7;
+    border-color: #533ab7;
+  }
+  .eje-btn[data-eje="emprendimientos"].active {
+    background: #0f6e56;
+    border-color: #0f6e56;
+  }
+  .eje-btn[data-eje="bienestar"].active {
+    background: #185fa5;
+    border-color: #185fa5;
+  }
+  .eje-btn[data-eje="jovenes"].active {
+    background: #d4537e;
+    border-color: #d4537e;
+  }
+  .eje-btn[data-eje="goprende"].active {
+    background: #3b6d11;
+    border-color: #3b6d11;
+  }
+  .eje-btn[data-eje="formacion"].active {
+    background: #993c1d;
+    border-color: #993c1d;
+  }
+  .eje-btn[data-eje="estrategia"].active {
+    background: #1a1a2e;
+    border-color: #1a1a2e;
+  }
+  .eje-btn[data-eje="comunicaciones"].active {
+    background: #854f0b;
+    border-color: #854f0b;
+  }
+  .eje-btn[data-eje="gestiones"].active {
+    background: #5f5e5a;
+    border-color: #5f5e5a;
+  }
+  .eje-btn[data-eje="fundacion"].active {
+    background: #a32d2d;
+    border-color: #a32d2d;
+  }
+
+  .table-wrap {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+  }
+  .table-header {
+    display: grid;
+    grid-template-columns: 2fr 1.2fr 1fr 1fr 1fr 1.3fr 1.2fr;
+    background: #1a1a2e;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 10px 16px;
+    gap: 8px;
+  }
+  .table-row {
+    display: grid;
+    grid-template-columns: 2fr 1.2fr 1fr 1fr 1fr 1.3fr 1.2fr;
+    padding: 10px 16px;
+    gap: 8px;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    align-items: center;
+    transition: background 0.1s;
+  }
+  .table-row:hover {
+    background: var(--color-background-secondary);
+  }
+  .table-row:last-child {
+    border-bottom: none;
+  }
+  .table-row input,
+  .table-row select {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 12px;
+    color: var(--color-text-primary);
+    background: transparent;
+    padding: 0;
+  }
+  .table-row input::placeholder {
+    color: var(--color-text-tertiary);
+  }
+  .status-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .badge-pendiente {
+    background: #faeeda;
+    color: #854f0b;
+  }
+  .badge-proceso {
+    background: #b5d4f4;
+    color: #0c447c;
+  }
+  .badge-listo {
+    background: #c0dd97;
+    color: #27500a;
+  }
+  .badge-cancelado {
+    background: #f7c1c1;
+    color: #791f1f;
+  }
+
+  .add-btn {
+    background: transparent;
+    border: 0.5px dashed var(--color-border-secondary);
+    border-radius: var(--border-radius-md);
+    padding: 10px;
+    width: 100%;
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: background 0.1s;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .add-btn:hover {
+    background: var(--color-background-secondary);
+  }
+
+  .footer-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .progress-wrap {
+    flex: 1;
+  }
+  .progress-label {
+    font-size: 11px;
+    color: var(--color-text-secondary);
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .progress-bar {
+    height: 6px;
+    background: var(--color-background-secondary);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: #533ab7;
+    border-radius: 3px;
+    transition: width 0.3s;
+  }
+  .action-btn {
+    background: #1a1a2e;
+    color: #fff;
+    border: none;
+    border-radius: var(--border-radius-md);
+    padding: 9px 18px;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .eje-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 6px;
+    flex-shrink: 0;
+  }
+</style>
+
+<div class="wrap">
+  <div class="header-strip">
+    <div>
+      <h1>Cronograma de campaña</h1>
+      <div style="font-size: 12px; color: #9ca3af; margin-top: 4px">
+        Formato estándar — todos los ejes
+      </div>
+    </div>
+    <div class="logo-pill">Yo Estoy Con Vos</div>
+  </div>
+
+  <div class="meta-row">
+    <div class="meta-card">
+      <label>Eje</label>
+      <div
+        id="eje-name"
+        style="
+          font-size: 13px;
+          font-weight: 500;
+          color: var(--color-text-primary);
+        "
+      >
+        Fe
+      </div>
+    </div>
+    <div class="meta-card">
+      <label>Responsable del eje</label>
+      <input type="text" placeholder="Nombre del coordinador" />
+    </div>
+    <div class="meta-card">
+      <label>Periodo</label>
+      <input type="text" placeholder="Ej: May — Ago 2025" />
+    </div>
+    <div class="meta-card">
+      <label>Región / Municipio</label>
+      <input type="text" placeholder="Ej: Cali, Valle" />
+    </div>
+    <div class="meta-card">
+      <label>Meta de actividades</label>
+      <input
+        type="number"
+        id="meta-input"
+        placeholder="Ej: 20"
+        value="8"
+        min="1"
+      />
+    </div>
+  </div>
+
+  <div class="eje-selector">
+    <label>Seleccionar eje activo</label>
+    <div class="ejes-grid">
+      <button
+        class="eje-btn active"
+        data-eje="fe"
+        data-color="#533AB7"
+        data-label="Fe"
+      >
+        Fe
+      </button>
+      <button
+        class="eje-btn"
+        data-eje="emprendimientos"
+        data-color="#0F6E56"
+        data-label="Emprendimientos"
+      >
+        Emprendimientos
+      </button>
+      <button
+        class="eje-btn"
+        data-eje="bienestar"
+        data-color="#185FA5"
+        data-label="Bienestar"
+      >
+        Bienestar
+      </button>
+      <button
+        class="eje-btn"
+        data-eje="jovenes"
+        data-color="#D4537E"
+        data-label="Jóvenes"
+      >
+        Jóvenes
+      </button>
+      <button
+        class="eje-btn"
+        data-eje="goprende"
+        data-color="#3B6D11"
+        data-label="Goprende"
+      >
+        Goprende
+      </button>
+      <button
+        class="eje-btn"
+        data-eje="formacion"
+        data-color="#993C1D"
+        data-label="Formación y Liderazgo"
+      >
+        Formación y Liderazgo
+      </button>
+      <button
+        class="eje-btn"
+        data-eje="estrategia"
+        data-color="#1a1a2e"
+        data-label="Estrategia Política"
+      >
+        Estrategia Política
+      </button>
+      <button
+        class="eje-btn"
+        data-eje="comunicaciones"
+        data-color="#854F0B"
+        data-label="Comunicaciones"
+      >
+        Comunicaciones
+      </button>
+      <button
+        class="eje-btn"
+        data-eje="gestiones"
+        data-color="#5F5E5A"
+        data-label="Gestiones"
+      >
+        Gestiones
+      </button>
+      <button
+        class="eje-btn"
+        data-eje="fundacion"
+        data-color="#A32D2D"
+        data-label="Fundación Yo Estoy Con Vos"
+      >
+        Fundación Yo Estoy Con Vos
+      </button>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-header">
+      <div>Actividad / Acción</div>
+      <div>Objetivo</div>
+      <div>Fecha inicio</div>
+      <div>Fecha fin</div>
+      <div>Responsable</div>
+      <div>Recursos necesarios</div>
+      <div>Estado</div>
+    </div>
+    <div id="rows-container">
+      <div class="table-row">
+        <input type="text" placeholder="Nombre de la actividad..." />
+        <input type="text" placeholder="Objetivo..." />
+        <input type="date" />
+        <input type="date" />
+        <input type="text" placeholder="Responsable..." />
+        <input type="text" placeholder="Recursos..." />
+        <select onchange="updateProgress()">
+          <option value="pendiente">⏳ Pendiente</option>
+          <option value="proceso">🔄 En proceso</option>
+          <option value="listo">✅ Listo</option>
+          <option value="cancelado">❌ Cancelado</option>
+        </select>
+      </div>
+      <div class="table-row">
+        <input type="text" placeholder="Nombre de la actividad..." />
+        <input type="text" placeholder="Objetivo..." />
+        <input type="date" />
+        <input type="date" />
+        <input type="text" placeholder="Responsable..." />
+        <input type="text" placeholder="Recursos..." />
+        <select onchange="updateProgress()">
+          <option value="pendiente">⏳ Pendiente</option>
+          <option value="proceso">🔄 En proceso</option>
+          <option value="listo">✅ Listo</option>
+          <option value="cancelado">❌ Cancelado</option>
+        </select>
+      </div>
+      <div class="table-row">
+        <input type="text" placeholder="Nombre de la actividad..." />
+        <input type="text" placeholder="Objetivo..." />
+        <input type="date" />
+        <input type="date" />
+        <input type="text" placeholder="Responsable..." />
+        <input type="text" placeholder="Recursos..." />
+        <select onchange="updateProgress()">
+          <option value="pendiente">⏳ Pendiente</option>
+          <option value="proceso">🔄 En proceso</option>
+          <option value="listo">✅ Listo</option>
+          <option value="cancelado">❌ Cancelado</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <button class="add-btn" onclick="addRow()">
+    <i class="ti ti-plus" aria-hidden="true"></i> Agregar actividad
+  </button>
+
+  <div class="footer-row">
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span>Avance del eje</span>
+        <span id="progress-pct">0%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+      </div>
+    </div>
+    <button
+      class="action-btn"
+      onclick="sendPrompt('Quiero exportar este cronograma a Excel o PDF. ¿Cómo puedo hacerlo?')"
+    >
+      Exportar ↗
+    </button>
+  </div>
+</div>
+
+<script>
+  const ejeBtns = document.querySelectorAll(".eje-btn");
+  const ejeName = document.getElementById("eje-name");
+  const progressFill = document.getElementById("progress-fill");
+  const progressPct = document.getElementById("progress-pct");
+
+  let activeColor = "#533AB7";
+
+  ejeBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      ejeBtns.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      activeColor = btn.dataset.color;
+      ejeName.textContent = btn.dataset.label;
+      progressFill.style.background = activeColor;
+      updateProgress();
+    });
+  });
+
+  function addRow() {
+    const container = document.getElementById("rows-container");
+    const row = document.createElement("div");
+    row.className = "table-row";
+    row.innerHTML = `
+    <input type="text" placeholder="Nombre de la actividad..." />
+    <input type="text" placeholder="Objetivo..." />
+    <input type="date" />
+    <input type="date" />
+    <input type="text" placeholder="Responsable..." />
+    <input type="text" placeholder="Recursos..." />
+    <select onchange="updateProgress()">
+      <option value="pendiente">⏳ Pendiente</option>
+      <option value="proceso">🔄 En proceso</option>
+      <option value="listo">✅ Listo</option>
+      <option value="cancelado">❌ Cancelado</option>
+    </select>
+  `;
+    container.appendChild(row);
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const selects = document.querySelectorAll("#rows-container select");
+    const total = selects.length;
+    let done = 0;
+    selects.forEach((s) => {
+      if (s.value === "listo") done++;
+    });
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+    progressFill.style.width = pct + "%";
+    progressPct.textContent = pct + "%";
+  }
+</script>
